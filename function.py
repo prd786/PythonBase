@@ -63,14 +63,25 @@
 # def totalmarks(*args):
 #     return sum(args)
 # print(totalmarks(85,  78, 65, 55))
-def process_data(* args):
-    return sum(args)
+# def process_data(* args):
+#     return sum(args)
 
-def wrapper(*args):
-    print("Before function call")
-    result = process_data(*args)
-    print("After function call")
-    return result
+# def wrapper(*args):
+#     print("Before function call")
+#     result = process_data(*args)
+#     print("After function call")
+#     return result
 
-print(wrapper(10, 20 ,30))
+# print(wrapper(10, 20 ,30))
+
+
+## default parameter for function 
+
+def greet(name, message="Hello"):
+    return message + " " + name
+
+print(greet("Ravi"))           # Hello Ravi
+print(greet("Ravi", "Hi"))     # Hi Ravi
+print(greet("Ravi", message="Welcome"))  # Welcome Ravi
+
 
