@@ -35,8 +35,8 @@
 # 👉 Ordered, mutable (changeable), allows duplicates
 
   
-num = [10,20,30,40,50,10 ]
-print(num[-1])
+# num = [10,20,30,40,50,10 ]
+# print(num[-1])
 
 # num1 = [10,20,30,40,50 ]
 # print(num1[::2])
@@ -94,18 +94,61 @@ print(num[-1])
 # 3. Sets
 # 👉 Unordered, unique elements only  {  }
 
-sets = { 10,20,30,40,50,10}
-print(sets.add(60))
+# sets = { 10,20,30,40,50,10}
+# print(sets.add(60))
 
-print(sets)
+# print(sets)
 
-a= {1,2,3,4,5}
-b = {4,5,6,7,8}
+# a= {1,2,3,4,5}
+# b = {4,5,6,7,8}
 
-print(a.intersection(b))
+# print(a.intersection(b))
 
-print(a.difference(b))
-
-
+# print(a.difference(b))
 
 
+
+
+employees = [
+    {"name": "Prasad", "salary": 50000},
+    {"name": "Amit", "salary": 60000},
+    {"name": "Ravi", "salary": 40000}
+]
+
+# 1. Print all names
+
+print(employees)
+
+# 2. Print salary > 50000
+# 3. Increase salary by 10%
+
+
+employees = [
+    {"name": "Prasad", "salary": 50000},
+    {"name": "Amit", "salary": 60000},
+    {"name": "Ravi", "salary": 40000}
+]
+
+# 1. Print all names
+
+print(employees)
+
+# 2. Print salary > 50000
+
+
+salary = [emp for emp in employees if emp["salary"] > 50000]
+print(salary)
+
+
+# 3. Increase salary by 10%
+
+# for emp in employees:
+#     if emp["salary"] < 60000:
+#         emp["salary"] *= 1.10
+# print (round(emp["salary"],2))
+
+
+for emp in employees:
+    if emp["salary"] < 60000:
+        emp["salary"] *= 1.10
+    print(round(emp["salary"], 2))
