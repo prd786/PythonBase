@@ -52,7 +52,9 @@ def create_item():
 # PUT - Update an existing item
 @app.route('/api/items/<int:item_id>', methods=['PUT'])
 def update_item(item_id):
-    item = next((i for i in items if i["id"] == item_id), None)
+    
+    
+    items = next((i for i in items if i["id"] == item_id), None)
     if not item:
         return jsonify({"error": "Item not found"}), 404
     
