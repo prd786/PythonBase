@@ -14,7 +14,7 @@ class Car:
 
 try:
     car = Car()
-    car.engine("150")
+    car.engine(150)
     car.chasis("hello")
 
     print("Engine power:", car.power)
