@@ -1,0 +1,14 @@
+[
+    {
+        "title": "Lunch",
+        "category": "Food",
+        "date": "26-04-2026",
+        "amount": 120.0
+    },
+    {
+        "title": "first expences",
+        "category": "grocessrry",
+        "date": "sysdate",
+        "amount": 500.0
+    }
+]

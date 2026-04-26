@@ -1,154 +1,90 @@
-# #dictinary exploring
-# employees = {
-#     101: {"name": "Ravi", "salary": 50000},
-#     102: {"name": "Anita", "salary": 60000},
-#     103: {"name": "John", "salary": 55000}
-# }
-
-# print(employees[101])  # Output: {'name': 'Ravi', 'salary': 50000}
-
-# for emp_id, details in employees.items():
-#     print(f"Employee ID: {emp_id}, Name: {details['name']}, Salary: {details['salary']}")
-
-# #list exploring
-# #employees1 =["milk" ,"bread" ,"eggs" ,"cheese" ,"fruits" ,"vegetables" ,"meat" ,"fish" ,"cereal" ,"yogurt"]
-
-# numbers = [1, 2, 3, 4, 5]
-# squared_numbers = [num * 2 for num in numbers]  
-# print(squared_numbers)  # Output: [2, 4, 6, 8, 10]
-
-# marks = {101:85, 102:90, 103:78, 104:35, 105:88}
-# passed_students =  {roll : "ppass" if mark >= 40  else "Failed" for roll, mark in marks.items()}
-# print(passed_students(103)) 
-
-# 3. Data Structures
-# Lists (indexing, slicing)
-# Tuples
-# Sets
-# Dictionaries
-# Nested data structures
-# List comprehensions
+import json
 
 
-# 1. Lists (Most Used)
-
-# 👉 Ordered, mutable (changeable), allows duplicates
-
-  
-# num = [10,20,30,40,50,10 ]
-# print(num[-1])
-
-# num1 = [10,20,30,40,50 ]
-# print(num1[::2])
-
-# list1 = [10,20,30,40,50 ]
-# print(list1[0:3])
+FILE_NAME = "expenses.json"
 
 
-# for i in num:
-#     print(i)
-
-# num[1]= 30
-# print('hi', num[1])
-
-# num.append(60)
-# print(num)
-
-# num.insert(1 , 25)
-# print(num)
-
-# num.remove(10)
-# print(num)
+def load_expenses():
+    try:
+        with open(FILE_NAME, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
+    except json.JSONDecodeError:
+        return []
 
 
-# remove all ocurunce 
-
-# num = [i for i in num if i != 10 ]
-# print(num)
-
-# 2---nd method using while loop 
-
-# while 10 in num:
-#     num.remove(10)
-#     print('while', num)
+def save_expenses(expenses):
+    with open(FILE_NAME, "w") as file:
+        json.dump(expenses, file, indent=4)
 
 
+def add_expense(expenses):
+    title = input("Enter expense title: ").strip()
 
-# 2. Tuples
+    try:
+        amount = float(input("Enter amount: "))
+    except ValueError:
+        print("Please enter a valid number.")
+        return
 
-# # 👉 Ordered, immutable (cannot change))  
+    category = input("Enter category (food, travel, bills, etc.): ").strip()
+    date = input("Enter date (DD-MM-YYYY): ").strip()
 
-# tup = ( 10,20 ,20 ,30,40,50)
+    expense = {
+        "title": title,
+        "amount": amount,
+        "category": category,
+        "date": date,
+    }
 
-# print('tupple1' , tup[0:2])
-
-# print('tupple' ,tup.count(20))
-
-
-# tup1 = (10,[20,30],40)
-
-# tup1[1].append(50)
-# print(tup1)
-#####################################################################
-
-# 3. Sets
-# 👉 Unordered, unique elements only  {  }
-
-# sets = { 10,20,30,40,50,10}
-# print(sets.add(60))
-
-# print(sets)
-
-# a= {1,2,3,4,5}
-# b = {4,5,6,7,8}
-
-# print(a.intersection(b))
-
-# print(a.difference(b))
+    expenses.append(expense)
+    save_expenses(expenses)
+    print("Expense added successfully.")
 
 
+def view_expenses(expenses):
+    if not expenses:
+        print("No expenses found.")
+        return
+
+    print("\nYour Expenses:")
+    for index, expense in enumerate(expenses, start=1):
+        print(
+            f"{index}. {expense['title']} | Rs.{expense['amount']:.2f} | "
+            f"{expense['category']} | {expense['date']}"
+        )
 
 
-employees = [
-    {"name": "Prasad", "salary": 50000},
-    {"name": "Amit", "salary": 60000},
-    {"name": "Ravi", "salary": 40000}
-]
-
-# 1. Print all names
-
-print(employees)
-
-# 2. Print salary > 50000
-# 3. Increase salary by 10%
+def show_total(expenses):
+    total = sum(expense["amount"] for expense in expenses)
+    print(f"Total spending: Rs.{total:.2f}")
 
 
-employees = [
-    {"name": "Prasad", "salary": 50000},
-    {"name": "Amit", "salary": 60000},
-    {"name": "Ravi", "salary": 40000}
-]
+def main():
+    expenses = load_expenses()
 
-# 1. Print all names
+    while True:
+        print("\nPersonal Expense Tracker")
+        print("1. Add expense")
+        print("2. View expenses")
+        print("3. Show total spending")
+        print("4. Exit")
 
-print(employees)
+        choice = input("Choose an option: ").strip()
 
-# 2. Print salary > 50000
-
-
-salary = [emp for emp in employees if emp["salary"] > 50000]
-print(salary)
-
-
-# 3. Increase salary by 10%
-
-# for emp in employees:
-#     if emp["salary"] < 60000:
-#         emp["salary"] *= 1.10
-# print (round(emp["salary"],2))
+        if choice == "1":
+            add_expense(expenses)
+        elif choice == "2":
+            view_expenses(expenses)
+        elif choice == "3":
+            show_total(expenses)
+        elif choice == "4":
+            print("Goodbye.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 
-for emp in employees:
-    if emp["salary"] < 60000:
-        emp["salary"] *= 1.10
-    print(round(emp["salary"], 2))
+if __name__ == "__main__":
+    main()

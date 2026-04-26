@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <main class="page-shell">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Personal Expense Tracker</p>
+                <h1>Track money with a dashboard that feels clear, fast, and calm.</h1>
+                <p class="hero-text">
+                    Add expenses, review spending patterns, and export your records to Excel whenever you need them.
+                </p>
+                <div class="hero-actions">
+                    <a class="button primary" href="#add-expense">Add Expense</a>
+                    <a class="button secondary" href="{{ url_for('export_excel') }}">Export Excel</a>
+                </div>
+            </div>
+            <div class="hero-panel">
+                <div class="stat-card accent">
+                    <span>Total Spend</span>
+                    <strong>Rs. {{ '%.2f'|format(summary.total) }}</strong>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span>Entries</span>
+                        <strong>{{ summary.count }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Average</span>
+                        <strong>Rs. {{ '%.2f'|format(summary.average) }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Top Category</span>
+                        <strong>{{ summary.top_category }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Category Total</span>
+                        <strong>Rs. {{ '%.2f'|format(summary.top_category_amount) }}</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <section class="flash-stack">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        <section class="content-grid">
+            <article class="panel form-panel" id="add-expense">
+                <div class="panel-head">
+                    <h2>Add Expense</h2>
+                    <p>Save a new transaction in seconds.</p>
+                </div>
+                <form method="post" action="{{ url_for('add_expense') }}" class="expense-form">
+                    <label>
+                        <span>Title</span>
+                        <input type="text" name="title" placeholder="Groceries, fuel, rent..." required>
+                    </label>
+                    <label>
+                        <span>Category</span>
+                        <input type="text" name="category" placeholder="Food, Travel, Bills..." required>
+                    </label>
+                    <label>
+                        <span>Date</span>
+                        <input type="date" name="date" value="{{ today }}" required>
+                    </label>
+                    <label>
+                        <span>Amount</span>
+                        <input type="number" name="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                    </label>
+                    <button type="submit" class="button primary wide">Save Expense</button>
+                </form>
+            </article>
+
+            <article class="panel insights-panel">
+                <div class="panel-head">
+                    <h2>Recent View</h2>
+                    <p>Your latest movement at a glance.</p>
+                </div>
+                <div class="mini-list">
+                    {% for expense in summary.recent_items %}
+                        <div class="mini-row">
+                            <div>
+                                <strong>{{ expense.title }}</strong>
+                                <span>{{ expense.category }} • {{ expense.display_date }}</span>
+                            </div>
+                            <em>Rs. {{ '%.2f'|format(expense.amount) }}</em>
+                        </div>
+                    {% else %}
+                        <p class="empty-state">No expenses saved yet.</p>
+                    {% endfor %}
+                </div>
+                <div class="monthly-block">
+                    <h3>Monthly Spend</h3>
+                    {% for item in summary.monthly_breakdown %}
+                        <div class="bar-row">
+                            <span>{{ item.label }}</span>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: {{ 100 if summary.total == 0 else (item.amount / summary.total * 100) }}%"></div>
+                            </div>
+                            <strong>Rs. {{ '%.2f'|format(item.amount) }}</strong>
+                        </div>
+                    {% else %}
+                        <p class="empty-state">Monthly summaries will appear here.</p>
+                    {% endfor %}
+                </div>
+            </article>
+        </section>
+
+        <section class="panel summary-panel">
+            <div class="ledger-head summary-head">
+                <div>
+                    <h2>Category Summary</h2>
+                    <p>Built directly from SQL totals for quick budget review.</p>
+                </div>
+            </div>
+            <div class="category-grid">
+                {% for item in summary.category_breakdown %}
+                    <div class="category-card">
+                        <strong>{{ item.category }}</strong>
+                        <span>{{ item.count }} entries</span>
+                        <em>Rs. {{ '%.2f'|format(item.amount) }}</em>
+                    </div>
+                {% else %}
+                    <p class="empty-state">Category totals will appear here once you add expenses.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {% if editing_expense %}
+            <section class="panel edit-panel" id="edit-expense">
+                <div class="panel-head">
+                    <h2>Edit Expense</h2>
+                    <p>Update this expense and keep the ledger accurate.</p>
+                </div>
+                <form method="post" action="{{ url_for('edit_expense', expense_id=editing_expense.id) }}" class="expense-form">
+                    <label>
+                        <span>Title</span>
+                        <input type="text" name="title" value="{{ editing_expense.title }}" required>
+                    </label>
+                    <label>
+                        <span>Category</span>
+                        <input type="text" name="category" value="{{ editing_expense.category }}" required>
+                    </label>
+                    <label>
+                        <span>Date</span>
+                        <input type="date" name="date" value="{{ editing_expense.date }}" required>
+                    </label>
+                    <label>
+                        <span>Amount</span>
+                        <input type="number" name="amount" min="0.01" step="0.01" value="{{ '%.2f'|format(editing_expense.amount) }}" required>
+                    </label>
+                    <div class="inline-actions">
+                        <button type="submit" class="button primary">Update Expense</button>
+                        <a class="button secondary" href="{{ url_for('index') }}">Cancel</a>
+                    </div>
+                </form>
+            </section>
+        {% endif %}
+
+        <section class="panel ledger-panel">
+            <div class="ledger-head">
+                <div>
+                    <h2>Expense Ledger</h2>
+                    <p>Search or filter your transactions.</p>
+                </div>
+                <form method="get" action="{{ url_for('index') }}" class="filter-form">
+                    <input type="search" name="q" value="{{ query }}" placeholder="Search title or category">
+                    <select name="category">
+                        <option value="">All categories</option>
+                        {% for category in summary.categories %}
+                            <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="button secondary">Apply</button>
+                </form>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense.title }}</td>
+                                <td><span class="tag">{{ expense.category }}</span></td>
+                                <td>{{ expense.display_date }}</td>
+                                <td class="amount">Rs. {{ '%.2f'|format(expense.amount) }}</td>
+                                <td class="actions-cell">
+                                    <div class="row-actions">
+                                        <a class="button secondary small" href="{{ url_for('index', edit=expense.id) }}">Edit</a>
+                                        <form method="post" action="{{ url_for('delete_expense', expense_id=expense.id) }}">
+                                            <button type="submit" class="button danger small" onclick="return confirm('Delete this expense?')">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="empty-cell">No matching expenses found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
