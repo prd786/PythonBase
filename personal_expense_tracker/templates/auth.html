@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'register' %}Create Account{% else %}Login{% endif %} | Money Note{% endblock %}
+
+{% block shell %}
+<div class="auth-shell">
+    <div class="auth-card">
+        <a class="brand-mark" href="{{ url_for('home') }}">Money Note</a>
+        <div class="auth-copy">
+            <p class="eyebrow">{% if mode == 'register' %}New account{% else %}Welcome back{% endif %}</p>
+            <h1>{% if mode == 'register' %}Create your personal expense space.{% else %}Log in to your dashboard.{% endif %}</h1>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <section class="flash-stack compact">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        <div class="social-stack">
+            {% if oauth_enabled.google %}
+                <a class="social-button" href="{{ url_for('oauth_start', provider='google') }}">Continue with Google</a>
+            {% else %}
+                <span class="social-button disabled">Google Login Setup Required</span>
+            {% endif %}
+            {% if oauth_enabled.facebook %}
+                <a class="social-button" href="{{ url_for('oauth_start', provider='facebook') }}">Continue with Facebook</a>
+            {% else %}
+                <span class="social-button disabled">Facebook Login Setup Required</span>
+            {% endif %}
+        </div>
+        {% if not oauth_enabled.google or not oauth_enabled.facebook %}
+            <p class="setup-note">Social login buttons become active after provider client credentials are configured.</p>
+        {% endif %}
+
+        <div class="auth-divider"><span>or use email</span></div>
+
+        <form method="post" class="expense-form">
+            {% if mode == 'register' %}
+                <label>
+                    <span>Full Name</span>
+                    <input type="text" name="full_name" placeholder="Your name" required>
+                </label>
+            {% endif %}
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" placeholder="name@example.com" required>
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" name="password" placeholder="Minimum 6 characters" required>
+            </label>
+            {% if mode == 'register' %}
+                <label>
+                    <span>Confirm Password</span>
+                    <input type="password" name="confirm_password" placeholder="Repeat password" required>
+                </label>
+            {% endif %}
+            <button type="submit" class="button primary wide">
+                {% if mode == 'register' %}Create Account{% else %}Login{% endif %}
+            </button>
+        </form>
+
+        <p class="auth-switch">
+            {% if mode == 'register' %}
+                Already have an account? <a href="{{ url_for('login') }}">Login</a>
+            {% else %}
+                Need an account? <a href="{{ url_for('register') }}">Create one</a>
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% endblock %}

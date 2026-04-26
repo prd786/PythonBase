@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Account | Money Note{% endblock %}
+
+{% block content %}
+    <header class="app-header">
+        <a class="brand-mark" href="{{ url_for('dashboard') }}">Money Note</a>
+        <div class="header-actions">
+            <a class="button secondary small" href="{{ url_for('dashboard') }}">Dashboard</a>
+            <form method="post" action="{{ url_for('logout') }}">
+                <button type="submit" class="button secondary small">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <section class="flash-stack">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </section>
+        {% endif %}
+    {% endwith %}
+
+    <section class="account-grid">
+        <article class="panel">
+            <div class="panel-head">
+                <h1>Account Details</h1>
+                <p>Update how your profile appears inside Money Note.</p>
+            </div>
+            <form method="post" action="{{ url_for('update_profile') }}" class="expense-form">
+                <label>
+                    <span>Full Name</span>
+                    <input type="text" name="full_name" value="{{ g.user['full_name'] }}" required>
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input type="email" value="{{ g.user['email'] }}" disabled>
+                </label>
+                <button type="submit" class="button primary">Save Profile</button>
+            </form>
+        </article>
+
+        <article class="panel">
+            <div class="panel-head">
+                <h2>Password</h2>
+                <p>{% if g.user['password_hash'] %}Change your current password.{% else %}Set a password so you can also log in with email.{% endif %}</p>
+            </div>
+            <form method="post" action="{{ url_for('update_password') }}" class="expense-form">
+                {% if g.user['password_hash'] %}
+                    <label>
+                        <span>Current Password</span>
+                        <input type="password" name="current_password" required>
+                    </label>
+                {% endif %}
+                <label>
+                    <span>New Password</span>
+                    <input type="password" name="new_password" required>
+                </label>
+                <label>
+                    <span>Confirm Password</span>
+                    <input type="password" name="confirm_password" required>
+                </label>
+                <button type="submit" class="button primary">Update Password</button>
+            </form>
+        </article>
+
+        <article class="panel">
+            <div class="panel-head">
+                <h2>Connected Login Methods</h2>
+                <p>Use these methods to access the same account.</p>
+            </div>
+            <div class="connection-list">
+                <div class="connection-row">
+                    <strong>Email login</strong>
+                    <span>{% if g.user['password_hash'] %}Enabled{% else %}Not set yet{% endif %}</span>
+                </div>
+                <div class="connection-row">
+                    <strong>Google</strong>
+                    <span>{% if g.user['google_id'] %}Connected{% else %}Not connected{% endif %}</span>
+                </div>
+                <div class="connection-row">
+                    <strong>Facebook</strong>
+                    <span>{% if g.user['facebook_id'] %}Connected{% else %}Not connected{% endif %}</span>
+                </div>
+            </div>
+            <div class="social-row stacked">
+                {% if oauth_enabled.google %}
+                    <a class="social-button" href="{{ url_for('oauth_start', provider='google') }}">Connect Google</a>
+                {% else %}
+                    <span class="social-button disabled">Google Login Setup Required</span>
+                {% endif %}
+                {% if oauth_enabled.facebook %}
+                    <a class="social-button" href="{{ url_for('oauth_start', provider='facebook') }}">Connect Facebook</a>
+                {% else %}
+                    <span class="social-button disabled">Facebook Login Setup Required</span>
+                {% endif %}
+            </div>
+            {% if not oauth_enabled.google or not oauth_enabled.facebook %}
+                <p class="setup-note">Add provider keys in environment variables to connect these social accounts.</p>
+            {% endif %}
+        </article>
+    </section>
+{% endblock %}

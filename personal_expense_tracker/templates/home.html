@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Money Note Home{% endblock %}
+
+{% block shell %}
+<div class="landing-shell">
+    <header class="site-header">
+        <a class="brand-mark" href="{{ url_for('home') }}">Money Note</a>
+        <nav class="site-nav">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a class="button primary small" href="{{ url_for('register') }}">Create Account</a>
+        </nav>
+    </header>
+
+    <main class="landing-main">
+        <section class="landing-hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Personal expense tracking for every account</p>
+                <h1>Manage your budget with your own private dashboard.</h1>
+                <p class="hero-text">
+                    Sign in with email, Google, or Facebook. Every user gets their own expenses, monthly budget, reports, and account settings.
+                </p>
+                <div class="hero-actions">
+                    <a class="button primary" href="{{ url_for('register') }}">Start Free</a>
+                    <a class="button secondary" href="{{ url_for('login') }}">Login</a>
+                </div>
+                <div class="social-row">
+                    {% if oauth_enabled.google %}
+                        <a class="social-button" href="{{ url_for('oauth_start', provider='google') }}">Continue with Google</a>
+                    {% else %}
+                        <span class="social-button disabled">Google Login Setup Required</span>
+                    {% endif %}
+                    {% if oauth_enabled.facebook %}
+                        <a class="social-button" href="{{ url_for('oauth_start', provider='facebook') }}">Continue with Facebook</a>
+                    {% else %}
+                        <span class="social-button disabled">Facebook Login Setup Required</span>
+                    {% endif %}
+                </div>
+                {% if not oauth_enabled.google or not oauth_enabled.facebook %}
+                    <p class="setup-note">Google and Facebook login will work after client keys are added to environment variables.</p>
+                {% endif %}
+            </div>
+            <div class="landing-visual">
+                <img src="{{ url_for('static', filename='expense-hero.svg') }}" alt="Expense tracking illustration">
+            </div>
+        </section>
+
+        <section class="feature-grid">
+            <article class="feature-panel">
+                <h2>Separate user data</h2>
+                <p>Each login keeps expenses, budgets, and exports isolated for that user only.</p>
+            </article>
+            <article class="feature-panel">
+                <h2>Monthly budget control</h2>
+                <p>Set one budget every month and track how much has already been used.</p>
+            </article>
+            <article class="feature-panel">
+                <h2>Account maintenance</h2>
+                <p>Update your profile, add a password, and use social login when provider keys are configured.</p>
+            </article>
+        </section>
+    </main>
+</div>
+{% endblock %}
